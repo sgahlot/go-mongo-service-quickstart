@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  mongo_db:
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    container_name: mongo-test-db
+    ports:
+      - 27017:27017
+    volumes:
+      # 1st one is for storing data outside the container. 2nd is for initializing the DB
+      - /tmp/data/mongodb:/data/db
+      - ./db-init/:/docker-entrypoint-initdb.d
