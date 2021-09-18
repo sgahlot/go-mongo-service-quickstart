@@ -1,14 +1,10 @@
 # go-service-quickstart
-Sample microservice code for both MongoDB as well as Postgres. It allows 
+Sample microservice code, modeled after Quarkus quickstart apps, for MongoDB. It allows 
 insertion, retrieval and deletion (TBD) operations on Fruit list.
 
-Since MongoDB is the default database, nothing special needs to be done to
-run it against MongoDB, but to run it against Postgres, one should set following
-environment variable:
+_This app is using `go-kit` and `gorilla` libraries to provide the REST endpoints._
 
-`DB_TYPE=postgres`
-
-## Mongo support:
+## Run the app:
 ### Local
 To run the codebase locally against MongoDB, execute following commands:
 
