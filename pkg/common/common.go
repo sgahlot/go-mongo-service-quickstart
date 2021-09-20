@@ -6,12 +6,9 @@ import (
 )
 
 const (
+	MONGO_DB_BINDING = "mongodb"
 	DB_NAME_KEY      = "DB_NAME"
-	DB_HOST_KEY      = "DB_HOST"
-	DB_PORT_KEY      = "DB_PORT"
-	DB_USER_KEY      = "DB_USER"
-	DB_PASS_KEY      = "DB_PASS"
-	DB_SRV_KEY       = "DB_SRV"
+	DB_URL_KEY       = "DB_URL"
 	RESPOSNE_SUCCESS = "Success"
 
 	POST   = "POST"

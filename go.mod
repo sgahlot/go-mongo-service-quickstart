@@ -1,4 +1,4 @@
-module github.com/sgahlot/go-service-quickstart
+module github.com/sgahlot/go-mongo-service-quickstart
 
 go 1.16
 

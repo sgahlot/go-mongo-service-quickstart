@@ -1,10 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"github.com/go-kit/kit/log"
+	"log"
 
-	mongoSvc "github.com/sgahlot/go-service-quickstart/pkg/mongo"
+	mongoSvc "github.com/sgahlot/go-mongo-service-quickstart/pkg/mongo"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,7 +16,7 @@ const (
 	SERVER_PORT = ":9090"
 )
 
-func mongoRoute(logger log.Logger) http.Handler {
+func mongoRoute() http.Handler {
 	ctx := mongoSvc.GetContext()
 
 	// var svc mongoSvc.Service
@@ -27,36 +28,25 @@ func mongoRoute(logger log.Logger) http.Handler {
 		GetFruits:   mongoSvc.GetFruits(svc),
 	}
 
-	{
-		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
-		logger = log.With(logger, "caller", log.DefaultCaller)
-	}
-
 	router := mongoSvc.CreateHandlers(ctx, endPoints)
 
 	return router
 }
 
 func main() {
-	logger := log.NewLogfmtLogger(os.Stderr)
-
-	router := mongoRoute(logger)
-
-	logger.Log("msg", "HTTP", "addr", SERVER_PORT)
+	router := mongoRoute()
 
 	errChan := make(chan error)
 	go func() {
-		// logger = log.With(logger, "status", "Starting fruit shop at port %s", SERVER_PORT)
+		log.Printf("Starting FruitShop server at port %s\n", SERVER_PORT)
 		handler := router
 		errChan <- http.ListenAndServe(SERVER_PORT, handler)
 	}()
 
-	// logger.Log("err", http.ListenAndServe(SERVER_PORT, nil))
-
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-		errChan <- logger.Log("Exit status", <-c)
+		errChan <- errors.New(fmt.Sprintf("Exit status %v", <-c))
 	}()
 
 	fmt.Println(<-errChan)
