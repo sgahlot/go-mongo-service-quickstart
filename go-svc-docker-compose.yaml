@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  go_fruit_svc:
+    build:
+      context: .
+      dockerfile: resources/docker/go/Dockerfile
+    restart: always
+    env_file:
+      - resources/docker/go/.env
+    container_name: go-mongo-fruit-app
+    ports:
+      - 9090:9090
