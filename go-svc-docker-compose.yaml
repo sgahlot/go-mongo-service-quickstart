@@ -1,13 +1,18 @@
 version: '3.8'
 
 services:
-  go_fruit_svc:
+  go-mongo-quickstart:
     build:
       context: .
       dockerfile: resources/docker/go/Dockerfile
+    image: quay.io/${QUAY_ORG}/go-mongo-quickstart:${MONGO_QUICKSTART_TAG}
     restart: always
     env_file:
       - resources/docker/go/.env
     container_name: go-mongo-fruit-app
     ports:
       - 9090:9090
+#    If one wants to test the bindings in Docker image, please create a directory with all the necessary binding files
+#    and pass that directory as the volume. Also uncomment the "SERVICE_BINDING_ROOT" variable in ".env" file
+#    volumes:
+#      - /tmp/test-bindings/bindings:/bindings
