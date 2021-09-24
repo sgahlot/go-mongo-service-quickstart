@@ -5,14 +5,31 @@ services:
     build:
       context: .
       dockerfile: resources/docker/go/Dockerfile
-    image: quay.io/${QUAY_ORG}/go-mongo-quickstart:${MONGO_QUICKSTART_TAG}
+    image: quay.io/${QUAY_USER_OR_ORG}/${IMAGE_NAME_WITHOUT_TAG}:${IMAGE_TAG}
     restart: always
-    env_file:
-      - resources/docker/go/.env
-    container_name: go-mongo-fruit-app
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_URL: ${DB_URL}
+      SERVICE_BINDING_ROOT: ${SERVICE_BINDING_ROOT}
+    container_name: ${CONTAINER_NAME}
     ports:
       - 9090:9090
+    depends_on:
+      - mongo_db
 #    If one wants to test the bindings in Docker image, please create a directory with all the necessary binding files
 #    and pass that directory as the volume. Also uncomment the "SERVICE_BINDING_ROOT" variable in ".env" file
-#    volumes:
-#      - /tmp/test-bindings/bindings:/bindings
+    volumes:
+      - /Users/sgahlot/self/projects/go/go-service-quickstart/test-bindings/bindings:/bindings
+
+  mongo_db:
+    image: mongo
+    restart: always
+    env_file:
+      - resources/docker/mongo/.env
+    container_name: mongo-test-db
+    ports:
+      - 27017:27017
+    volumes:
+      # 1st one is for storing data outside the container. 2nd is for initializing the DB
+      - /tmp/data/mongodb:/data/db
+      - ./resources/docker/mongo/db-init/:/docker-entrypoint-initdb.d

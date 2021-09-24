@@ -15,8 +15,9 @@ COPY cmd/ ./
 WORKDIR /app/pkg
 COPY pkg/ ./
 
+ENV OUTPUT_FILE=${BINARY_NAME:-mongo-svc-quickstart}
 WORKDIR /app
-RUN CGO_ENABLE=0 GOOS=linux GOARCH=amd64 go build -o ./mongo-svc-quickstart ./cmd
+RUN CGO_ENABLE=0 GOOS=linux GOARCH=amd64 go build -o ./${OUTPUT_FILE} ./cmd
 
 
 # DEPLOY stage
@@ -24,6 +25,6 @@ FROM gcr.io/distroless/base-debian10
 
 WORKDIR deploy
 
-COPY --from=build /app/mongo-svc-quickstart /deploy/
+COPY --from=build /app/${OUTPUT_FILE} /deploy/
 EXPOSE 9090
 CMD ["/deploy/mongo-svc-quickstart"]

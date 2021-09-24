@@ -3,11 +3,9 @@ db.createUser({
     pwd: 'test-pass',
     roles: [{
         role: 'readWrite',
-        db: 'sample-db'
+        db: 'fruit'
     }]
 });
-
-db = new Mongo().getDB('sample-db');
 
 db.fruit.insert({
     _id: '1',

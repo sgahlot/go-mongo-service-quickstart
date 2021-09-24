@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	DEFAULT_DB_NAME    = "sample-db"
+	DEFAULT_DB_NAME    = "fruit"
 	DEFAULT_COLLECTION = "fruit"
-	DEFAULT_DB_URL     = "mongodb://test-user:test-pass@localhost:27017/sample-db"
+	DEFAULT_DB_URL     = "mongodb://test-user:test-pass@localhost:27017/fruit"
 )
 
 var dbName = common.GetEnvOrDefault(common.DB_NAME_KEY, DEFAULT_DB_NAME)

@@ -1,12 +1,12 @@
 // EXECUTE then steps given in this script
-use sample-db;
+use fruit;
 
 db.createUser({
   user: 'test-user',
   pwd: 'test-pass',
   roles: [{
     role: 'readWrite',
-    db: 'sample-db'
+    db: 'fruit'
   }]
 });
 
