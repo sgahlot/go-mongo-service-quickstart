@@ -46,7 +46,7 @@ Use following commands to build and run the app in Docker container:
   * `make build_image`
 * Run the app in container (will build the image if not already built)
   * _Change the `test-bindings/bindings/host` value to `mongo_db:27017`_
-  * `SERVICE_BINDING_ROOT=/bindings make run_container`
+  * `SERVICE_BINDING_ROOT=/bindings make start_container`
 * Stop the container (will also remove the container)
   * `make stop_container`
 
@@ -103,14 +103,16 @@ _above will retrieve all the fruits from database_
 
 
 ## Install MongoDB
-One can install MongoDB in Docker, to run the app locally. Execute following commands
-to run MongoDB locally:
+One can install MongoDB in Docker, to run the app locally.
 
-`docker compose -f resources/docker/mongo/mongo-docker-compose.yaml up -d`
+### Start MongoDB
 
+`make start_mongo_db`
+
+### Initialize db
 _Above should fetch the latest image of MongoDB and run a container named mongo-test-db locally
-The database should be initialized, but in case it is not, please run
-following commands, in a terminal, to initialize the local Mongo DB:_
+The database should be initialized, but in case it is not, please run following commands, in a
+terminal, to initialize the local Mongo DB:_
 
 `docker exec -it mongo-test-db bash`
 
@@ -135,3 +137,7 @@ To exit the mongo shell as well as mongo docker container:
 quit()
 exit 
 ```
+
+### To stop MongoDB:
+
+`make stop_mongo_db`

@@ -31,7 +31,7 @@ func getMongoDbConnectionStringForNonBindingsRun() string {
 }
 
 func getMongoDbConnectionStringForBindingsRun() string {
-	sqlConnectionStr, err := convert.GetMongodbConnectionString(common.MONGO_DB_BINDING)
+	sqlConnectionStr, err := convert.GetMongoDBConnectionString()
 	common.CheckErrorWithPanic(err, "while trying to get MongoDB connection string from Bindings")
 
 	return sqlConnectionStr

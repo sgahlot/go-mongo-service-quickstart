@@ -57,13 +57,21 @@ show_build_config: ## Shows the docker compose output - with all the environment
 build_image: build_binary ## Builds docker image
 	$(DOCKER_ENV) $(IMAGE_BUILDER) compose -f go-svc-docker-compose.yaml build
 
-.PHONY: run_container
-run_container: build_image ## Starts the Docker container (and builds docker image if not already built)
+.PHONY: start_container
+start_container: build_image stop_mongo_db ## Starts the Docker container (and builds docker image if not already built)
 	$(DOCKER_ENV) $(IMAGE_BUILDER) compose -f go-svc-docker-compose.yaml up -d
 
 .PHONY: stop_container
 stop_container: ## Stops the docker container and removes it as well
 	$(DOCKER_ENV) $(IMAGE_BUILDER) compose -f go-svc-docker-compose.yaml down
+
+.PHONY: start_mongo_db
+start_mongo_db: ## Runs ONLY MongoDB container
+	$(DOCKER_ENV) $(IMAGE_BUILDER) compose -f go-svc-docker-compose.yaml up -d mongo_db
+
+.PHONY: stop_mongo_db
+stop_mongo_db: ## Stops MongoDB container
+	$(DOCKER_ENV) $(IMAGE_BUILDER) compose -f go-svc-docker-compose.yaml down mongo_db
 
 .PHONY: push_image
 push_image: ## Builds the image and pushes it to quay.io
