@@ -13,13 +13,11 @@ services:
       SERVICE_BINDING_ROOT: ${SERVICE_BINDING_ROOT}
     container_name: ${CONTAINER_NAME}
     ports:
-      - 9090:9090
+      - "8080:8080"
     depends_on:
       - mongo_db
-#    If one wants to test the bindings in Docker image, please create a directory with all the necessary binding files
-#    and pass that directory as the volume. Also uncomment the "SERVICE_BINDING_ROOT" variable in ".env" file
     volumes:
-      - /Users/sgahlot/self/projects/go/go-service-quickstart/test-bindings/bindings:/bindings
+      - ./test-bindings/bindings:/bindings
 
   mongo_db:
     image: mongo
@@ -28,7 +26,7 @@ services:
       - resources/docker/mongo/.env
     container_name: mongo-test-db
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       # 1st one is for storing data outside the container. 2nd is for initializing the DB
       - /tmp/data/mongodb:/data/db

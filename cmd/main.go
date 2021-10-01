@@ -13,19 +13,17 @@ import (
 )
 
 const (
-	SERVER_PORT = ":9090"
+	SERVER_PORT = ":8080"
 )
 
-func mongoRoute() http.Handler {
+func mongoRoute(service mongoSvc.Service) http.Handler {
 	ctx := mongoSvc.GetContext()
 
-	// var svc mongoSvc.Service
-	svc := &mongoSvc.FruitService{}
 	endPoints := mongoSvc.EndPoints{
-		InsertFruit: mongoSvc.InsertFruit(svc),
-		DeleteFruit: mongoSvc.DeleteFruits(svc),
-		GetFruit:    mongoSvc.GetFruit(svc),
-		GetFruits:   mongoSvc.GetFruits(svc),
+		InsertFruit: mongoSvc.InsertFruit(service),
+		DeleteFruit: mongoSvc.DeleteFruits(service),
+		GetFruit:    mongoSvc.GetFruit(service),
+		GetFruits:   mongoSvc.GetFruits(service),
 	}
 
 	router := mongoSvc.CreateHandlers(ctx, endPoints)
@@ -34,7 +32,7 @@ func mongoRoute() http.Handler {
 }
 
 func main() {
-	router := mongoRoute()
+	router := mongoRoute(&mongoSvc.FruitService{})
 
 	errChan := make(chan error)
 	go func() {

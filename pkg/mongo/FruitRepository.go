@@ -16,7 +16,7 @@ const (
 
 type Service interface {
 	InsertFruit(req *FruitRequest) FruitResponse
-	GetFruits(req *FruitRequest) []Fruit
+	GetFruits(req *FruitRequest) FruitResponse
 	GetFruit(req *FruitRequest) Fruit
 	DeleteFruits(req *FruitRequest) FruitResponse
 }
@@ -25,7 +25,7 @@ type FruitService struct {
 	fruit *Fruit
 }
 
-func (receiver FruitService) InsertFruit(fruit *FruitRequest) FruitResponse {
+func (receiver *FruitService) InsertFruit(fruit *FruitRequest) FruitResponse {
 	log.Printf("Inserting Fruit (%+v)\n", fruit)
 
 	collection := GetMongoDbCollection(DEFAULT_COLLECTION)
@@ -42,7 +42,6 @@ func (receiver FruitService) InsertFruit(fruit *FruitRequest) FruitResponse {
 	log.Printf("Inserted Fruit (id=%s, %+v)\n", fruitId, fruit)
 
 	return FruitResponse{
-		Created: true,
 		Id:      fruitId,
 		Message: common.RESPOSNE_SUCCESS,
 		Err:     nil,
@@ -60,24 +59,23 @@ func (receiver *FruitService) DeleteFruits(req *FruitRequest) FruitResponse {
 
 	log.Printf("Deleted Fruit(s) (%+v)\n", deletedData)
 	return FruitResponse{
-		Deleted: true,
-		Message: common.RESPOSNE_SUCCESS,
+		Message: fmt.Sprintf(common.RESPOSNE_SUCCESS+" in deleting %d fruits", deletedData.DeletedCount),
 		Err:     nil,
 	}
 }
 
 func (receiver *FruitService) GetFruit(req *FruitRequest) Fruit {
-	fruits := receiver.GetFruits(req)
+	fruitResponse := receiver.GetFruits(req)
 
 	var fruit Fruit
-	if len(fruits) > 0 {
-		fruit = fruits[0]
+	if fruitResponse.Fruits != nil && len(fruitResponse.Fruits) > 0 {
+		fruit = fruitResponse.Fruits[0]
 	}
 
 	return fruit
 }
 
-func (receiver *FruitService) GetFruits(req *FruitRequest) []Fruit {
+func (receiver *FruitService) GetFruits(req *FruitRequest) FruitResponse {
 	log.Printf("Retrieving Fruits (+%v)\n", req)
 
 	dbContext := GetContext()
@@ -94,8 +92,20 @@ func (receiver *FruitService) GetFruits(req *FruitRequest) []Fruit {
 		fruits = append(fruits, fruit)
 	}
 
-	return fruits
+	var message = fmt.Sprintf("Found %d fruits", len(fruits))
 
+	if len(fruits) == 0 {
+		// Create default "no-result" response
+		message = "No fruits found for given query"
+		fruits = nil
+	}
+
+	response := FruitResponse{
+		Message: message,
+		Fruits:  fruits,
+	}
+
+	return response
 }
 
 func (receiver *FruitService) searchDb(req *FruitRequest, ctx context.Context) *mongo.Cursor {

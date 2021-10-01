@@ -64,12 +64,12 @@ _[Operations supported](#operations-supported)_
   _The image will be named `go-mongo-quickstart:0.0.1-SNAPSHOT`_
 * Create and run a container using the image created in previous step:
   ```
-  docker run --name go-mongo-fruit-app -d -p 9090:9090 --rm
+  docker run --name go-mongo-fruit-app -d -p 8080:8080 --rm
       -e SERVICE_BINDING_ROOT=<BINDING_ROOT_DIR>
       -e DB_NAME=<DB_NAME_CONTAINING_FRUIT_COLLECTION>
       go-mongo-quickstart:0.0.1-SNAPSHOT
   ```
-  _This will create a container named `go-mongo-fruit-app` listening on port 9090._  
+  _This will create a container named `go-mongo-fruit-app` listening on port 8080._  
 
 ## Tools used to perform API calls
 You can either use `curl` or `httpie` to invoke the API from command line.
@@ -78,13 +78,13 @@ UI support is still a TODO. Examples provide use `httpie` tool
 ## Operations supported
 ### Insert fruit
 
-`http POST localhost:9090/api/v1/fruits name="SOME FRUIT NAME" description="SOME DESCRIPTION"`
+`http POST localhost:8080/api/v1/fruits name="SOME FRUIT NAME" description="SOME DESCRIPTION"`
 
 _above will gets translated to a POST call using name and description as JSON payload_
 
 ### Retrieve all fruits
 
-`http http://localhost:9090/api/v1/fruits\?name\="ALL"`
+`http http://localhost:8080/api/v1/fruits\?name\="ALL"`
 
 _above will retrieve all the fruits from database_
 

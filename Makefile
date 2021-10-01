@@ -20,7 +20,7 @@ IMAGE_NAME ?= $(IMAGE_NAME_WITHOUT_TAG):$(IMAGE_TAG)
 CONTAINER_NAME ?= go-mongo-fruit-app
 IMAGE_BUILDER ?= docker
 
-## Include and export the environment variables
+# Include and export the environment variables
 #include resources/docker/go/.env
 #export
 
@@ -32,6 +32,12 @@ DOCKER_ENV = QUAY_USER_OR_ORG=$(QUAY_USER_OR_ORG) \
               CONTAINER_NAME=$(CONTAINER_NAME) \
               BINARY_NAME=$(BINARY_NAME) \
               SERVICE_BINDING_ROOT=$(SERVICE_BINDING_ROOT)
+
+# @fgrep -h "##" $(MAKEFILE_LIST) | sed -e 's/\(\:.*\#\#\)/\:\ /' | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+# Taken from "https://gist.github.com/prwhite/8168133"
+.PHONY: help
+help: ## Shows help
+	@egrep '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: run
 run: ## Runs the app from source - without building an executable
@@ -74,6 +80,6 @@ stop_mongo_db: ## Stops MongoDB container
 	$(DOCKER_ENV) $(IMAGE_BUILDER) compose -f go-svc-docker-compose.yaml down mongo_db
 
 .PHONY: push_image
-push_image: ## Builds the image and pushes it to quay.io
+push_image: build_image ## Builds the image and pushes it to quay.io
 	$(IMAGE_BUILDER) push $(IMAGE_REGISTRY)/$(IMAGE_REPO)/$(IMAGE_NAME)
 

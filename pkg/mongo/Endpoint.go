@@ -17,11 +17,7 @@ func InsertFruit(service Service) endpoint.Endpoint {
 }
 
 func GetFruits(service Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		fruit := request.(FruitRequest)
-
-		return service.GetFruits(&fruit), nil
-	}
+	return createEndpointFunc(service.GetFruits)
 }
 
 func GetFruit(service Service) endpoint.Endpoint {

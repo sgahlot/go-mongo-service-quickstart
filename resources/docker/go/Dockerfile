@@ -26,5 +26,5 @@ FROM gcr.io/distroless/base-debian10
 WORKDIR deploy
 
 COPY --from=build /app/${OUTPUT_FILE} /deploy/
-EXPOSE 9090
+EXPOSE 8080
 CMD ["/deploy/mongo-svc-quickstart"]

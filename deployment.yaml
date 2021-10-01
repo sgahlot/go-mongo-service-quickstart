@@ -20,7 +20,7 @@ items:
               image: quay.io/sgahlot/go-mongo-quickstart:0.0.1-SNAPSHOT
               imagePullPolicy: Always
               ports:
-                - containerPort: 9090
+                - containerPort: 8080
                   protocol: TCP
   - kind: Service
     apiVersion: v1
@@ -32,7 +32,7 @@ items:
       ports:
         - port: 8080
           protocol: TCP
-          targetPort: 9090
+          targetPort: 8080
       selector:
         name: go-mongo-quickstart
   - kind: Route
@@ -43,7 +43,7 @@ items:
         name: go-mongo-quickstart
     spec:
       port:
-        targetPort: 9090
+        targetPort: 8080
       to:
         kind: Service
         name: go-mongo-quickstart

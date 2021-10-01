@@ -7,5 +7,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/myeung18/service-binding-client v0.0.0-20210923152958-f5a6db70edfd // indirect
+	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/vektra/mockery/v2 v2.9.4 // indirect
 	go.mongodb.org/mongo-driver v1.7.2
 )
