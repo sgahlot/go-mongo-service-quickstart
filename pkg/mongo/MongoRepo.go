@@ -21,10 +21,6 @@ var (
 	mongoDbClient *mongo.Client
 )
 
-func init() {
-	mongoDbClient = getMongoDbConnection()
-}
-
 func GetContext() context.Context {
 	return context.Background()
 }
@@ -77,8 +73,10 @@ func getMongoDbConnection() *mongo.Client {
 }
 
 func checkAndRefreshConnection() {
-	err := mongoDbClient.Ping(context.TODO(), nil)
-	if err != nil {
+	if mongoDbClient == nil {
+		// Try to get the connection as this could be the first time we're trying to connect
+		mongoDbClient = getMongoDbConnection()
+	} else if err := mongoDbClient.Ping(context.TODO(), nil); err != nil {
 		// Try to get the connection again as we might be disconnected
 		mongoDbClient = getMongoDbConnection()
 	}

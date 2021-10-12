@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/sgahlot/go-mongo-service-quickstart/pkg/mongo/mocks"
+	"github.com/sgahlot/go-mongo-service-quickstart/mocks/pkg/mongo"
 	"io/ioutil"
 
 	"github.com/sgahlot/go-mongo-service-quickstart/pkg/mongo"
@@ -36,6 +36,13 @@ const (
             "id": "4",
             "name": "Peach"
         }`
+
+	INSERT_FRUIT_RESPONSE = `
+		{
+			"id":      "1010101",
+			"message": "success",
+		}
+	`
 )
 
 func performRequest(handler http.Handler, body interface{}, method, path string) *httptest.ResponseRecorder {
@@ -88,7 +95,7 @@ func TestRetrieveFruits(t *testing.T) {
 
 		// fmt.Printf("Expected response: %+v\n", responseAsObj)
 
-		response, err := invokeApiAndVerifyResponse(t, router, "GET", "/api/v1/fruits?name=BLAH", http.StatusOK)
+		response, err := invokeApiAndVerifyResponse(t, router, nil, "GET", "/api/v1/fruits?name=BLAH", http.StatusOK)
 		fruitResponse := response.(mongo.FruitResponse)
 
 		assert.Nil(t, err)
@@ -114,7 +121,7 @@ func TestRetrieveAllFruits(t *testing.T) {
 
 	// fmt.Printf("Expected response: %+v\n", responseAsObj)
 
-	response, err := invokeApiAndVerifyResponse(t, router, "GET", "/api/v1/fruits?name="+mongo.ALL_ROWS, http.StatusOK)
+	response, err := invokeApiAndVerifyResponse(t, router, nil, "GET", "/api/v1/fruits?name="+mongo.ALL_ROWS, http.StatusOK)
 	fruitResponse := response.(mongo.FruitResponse)
 
 	assert.Nil(t, err)
@@ -128,25 +135,38 @@ func TestInsertFruit(t *testing.T) {
 	router := mongoRoute(mockService)
 
 	fruitRequest := mongo.FruitRequest{Description: "Full of fibre adn Vitamin C", Name: "Pear"}
+	responseAsObj := getFruitResponseAsObject(INSERT_FRUIT_RESPONSE)
+	mockService.On("InsertFruit", &fruitRequest).Return(responseAsObj)
+	response, err := invokeApiAndVerifyResponse(t, router,
+		fruitRequest,
+		"POST",
+		"/api/v1/fruits",
+		http.StatusOK)
 
 	RESPONSE_MESSAGE := "Found 5 fruits"
-
 	responseJson := getFruitResponseJson(fmt.Sprintf(`[%s, {"description": "%s", "name": "%s"}]`, INITIAL_4_FRUITS, fruitRequest.Description, fruitRequest.Name),
 		RESPONSE_MESSAGE)
 
-	var responseAsObj mongo.FruitResponse
-	json.Unmarshal([]byte(responseJson), &responseAsObj)
+	responseAsObj = getFruitResponseAsObject(responseJson)
+	fruitRequest = mongo.FruitRequest{Name: mongo.ALL_ROWS}
 	mockService.On("GetFruits", &fruitRequest).Return(responseAsObj)
 
 	// fmt.Printf("Expected response: %+v\n", responseAsObj)
 
-	response, err := invokeApiAndVerifyResponse(t, router, "GET", "/api/v1/fruits?name="+mongo.ALL_ROWS, http.StatusOK)
+	response, err = invokeApiAndVerifyResponse(t, router, nil, "GET", "/api/v1/fruits?name="+mongo.ALL_ROWS, http.StatusOK)
 	fruitResponse := response.(mongo.FruitResponse)
 
 	assert.Nil(t, err)
 	assert.Nil(t, fruitResponse.Err)
 	assert.Equal(t, fruitResponse.Message, RESPONSE_MESSAGE)
 	assert.Equal(t, responseAsObj.Fruits, fruitResponse.Fruits)
+}
+
+func getFruitResponseAsObject(responseJson string) mongo.FruitResponse {
+	var responseAsObj mongo.FruitResponse
+	json.Unmarshal([]byte(responseJson), &responseAsObj)
+
+	return responseAsObj
 }
 
 func getFruitResponseJson(fruits, message string) string {
@@ -159,8 +179,8 @@ func getFruitResponseJson(fruits, message string) string {
 	return responseJson
 }
 
-func invokeApiAndVerifyResponse(t *testing.T, router http.Handler, method, path string, httpStatus int) (interface{}, error) {
-	writer := performRequest(router, nil, method, path)
+func invokeApiAndVerifyResponse(t *testing.T, router http.Handler, body interface{}, method, path string, httpStatus int) (interface{}, error) {
+	writer := performRequest(router, body, method, path)
 	assert.Equal(t, httpStatus, writer.Code)
 
 	var response mongo.FruitResponse
