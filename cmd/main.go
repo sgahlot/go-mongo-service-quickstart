@@ -3,9 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/sgahlot/go-mongo-service-quickstart/pkg/common"
 	"log"
 
-	mongoSvc "github.com/sgahlot/go-mongo-service-quickstart/pkg/mongo"
+	db "github.com/sgahlot/go-mongo-service-quickstart/pkg/db"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,23 +17,23 @@ const (
 	SERVER_PORT = ":8080"
 )
 
-func mongoRoute(service mongoSvc.Service) http.Handler {
-	ctx := mongoSvc.GetContext()
+func mongoRoute(service common.Service) http.Handler {
+	ctx := db.GetContext()
 
-	endPoints := mongoSvc.EndPoints{
-		InsertFruit: mongoSvc.InsertFruit(service),
-		DeleteFruit: mongoSvc.DeleteFruits(service),
-		GetFruit:    mongoSvc.GetFruit(service),
-		GetFruits:   mongoSvc.GetFruits(service),
+	endPoints := common.EndPoints{
+		InsertFruit: common.InsertFruit(service),
+		DeleteFruit: common.DeleteFruits(service),
+		GetFruit:    common.GetFruit(service),
+		GetFruits:   common.GetFruits(service),
 	}
 
-	router := mongoSvc.CreateHandlers(ctx, endPoints)
+	router := common.CreateHandlers(ctx, endPoints)
 
 	return router
 }
 
 func main() {
-	router := mongoRoute(&mongoSvc.FruitService{})
+	router := mongoRoute(&db.FruitService{})
 
 	errChan := make(chan error)
 	go func() {

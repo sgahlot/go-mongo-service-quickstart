@@ -1,4 +1,4 @@
-package mongo
+package db
 
 import (
 	"context"
@@ -14,18 +14,27 @@ const (
 	ALL_ROWS = "ALL"
 )
 
-type Service interface {
-	InsertFruit(req *FruitRequest) FruitResponse
-	GetFruits(req *FruitRequest) FruitResponse
-	GetFruit(req *FruitRequest) Fruit
-	DeleteFruits(req *FruitRequest) FruitResponse
-}
-
 type FruitService struct {
-	fruit *Fruit
+	fruit *common.Fruit
 }
 
-func (receiver *FruitService) InsertFruit(fruit *FruitRequest) FruitResponse {
+func (receiver *FruitService) GetDbSearchQuery(req *common.Fruit) []bson.M {
+	var query []bson.M
+
+	if req.Id != "" {
+		query = append(query, bson.M{"_id": req.Id})
+	}
+	if req.Name != "" {
+		query = append(query, bson.M{"name": req.Name})
+	}
+	if req.Description != "" {
+		query = append(query, bson.M{"description": req.Description})
+	}
+
+	return query
+}
+
+func (receiver *FruitService) InsertFruit(fruit *common.Fruit) common.FruitResponse {
 	log.Printf("Inserting Fruit (%+v)\n", fruit)
 
 	collection := GetMongoDbCollection(DEFAULT_COLLECTION)
@@ -41,33 +50,33 @@ func (receiver *FruitService) InsertFruit(fruit *FruitRequest) FruitResponse {
 	fruitId := inserted.InsertedID
 	log.Printf("Inserted Fruit (id=%s, %+v)\n", fruitId, fruit)
 
-	return FruitResponse{
+	return common.FruitResponse{
 		Id:      fruitId,
 		Message: common.RESPOSNE_SUCCESS,
 		Err:     nil,
 	}
 }
 
-func (receiver *FruitService) DeleteFruits(req *FruitRequest) FruitResponse {
+func (receiver *FruitService) DeleteFruits(req *common.Fruit) common.FruitResponse {
 	log.Printf("Deleting Fruit(s) (%+v)\n", req)
 
-	searchQuery := req.GetDbSearchQuery()
+	searchQuery := receiver.GetDbSearchQuery(req)
 	collection := GetMongoDbCollection(DEFAULT_COLLECTION)
 
 	deletedData, err := collection.DeleteMany(GetContext(), searchQuery)
 	common.CheckErrorWithPanic(err, fmt.Sprintf("error while deleting Fruit (%+v)", req))
 
 	log.Printf("Deleted Fruit(s) (%+v)\n", deletedData)
-	return FruitResponse{
+	return common.FruitResponse{
 		Message: fmt.Sprintf(common.RESPOSNE_SUCCESS+" in deleting %d fruits", deletedData.DeletedCount),
 		Err:     nil,
 	}
 }
 
-func (receiver *FruitService) GetFruit(req *FruitRequest) Fruit {
+func (receiver *FruitService) GetFruit(req *common.Fruit) common.Fruit {
 	fruitResponse := receiver.GetFruits(req)
 
-	var fruit Fruit
+	var fruit common.Fruit
 	if fruitResponse.Fruits != nil && len(fruitResponse.Fruits) > 0 {
 		fruit = fruitResponse.Fruits[0]
 	}
@@ -75,7 +84,7 @@ func (receiver *FruitService) GetFruit(req *FruitRequest) Fruit {
 	return fruit
 }
 
-func (receiver *FruitService) GetFruits(req *FruitRequest) FruitResponse {
+func (receiver *FruitService) GetFruits(req *common.Fruit) common.FruitResponse {
 	log.Printf("Retrieving Fruits (+%v)\n", req)
 
 	dbContext := GetContext()
@@ -83,10 +92,10 @@ func (receiver *FruitService) GetFruits(req *FruitRequest) FruitResponse {
 	cursor := receiver.searchDb(req, dbContext)
 
 	defer cursor.Close(dbContext)
-	var fruits []Fruit
+	var fruits []common.Fruit
 
 	for cursor.Next(GetContext()) {
-		fruit := Fruit{}
+		fruit := common.Fruit{}
 		err := cursor.Decode(&fruit)
 		common.CheckErrorWithPanic(err, "error while trying to decode Fruit")
 		fruits = append(fruits, fruit)
@@ -100,7 +109,7 @@ func (receiver *FruitService) GetFruits(req *FruitRequest) FruitResponse {
 		fruits = nil
 	}
 
-	response := FruitResponse{
+	response := common.FruitResponse{
 		Message: message,
 		Fruits:  fruits,
 	}
@@ -108,12 +117,12 @@ func (receiver *FruitService) GetFruits(req *FruitRequest) FruitResponse {
 	return response
 }
 
-func (receiver *FruitService) searchDb(req *FruitRequest, ctx context.Context) *mongo.Cursor {
+func (receiver *FruitService) searchDb(req *common.Fruit, ctx context.Context) *mongo.Cursor {
 	collection := GetMongoDbCollection(DEFAULT_COLLECTION)
 
 	var bsonMap interface{}
 	if req.Name != ALL_ROWS {
-		query := req.GetDbSearchQuery()
+		query := receiver.GetDbSearchQuery(req)
 		bsonMap = bson.M{"$or": query}
 	} else {
 		bsonMap = bson.M{}

@@ -1,4 +1,4 @@
-package mongo
+package common
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"fmt"
 	httpTransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"github.com/sgahlot/go-mongo-service-quickstart/pkg/common"
 	"log"
 	"net/http"
 )
@@ -37,7 +36,7 @@ func CreateHandlers(_ context.Context, endpoint EndPoints) http.Handler {
 
 	router.Use(logRequest)
 
-	router.Methods(common.POST, common.PUT).Path("/api/v1/fruits").
+	router.Methods(POST, PUT).Path("/api/v1/fruits").
 		Handler(httpTransport.NewServer(
 			endpoint.InsertFruit,
 			decodeInsertFruitRequest,
@@ -45,7 +44,7 @@ func CreateHandlers(_ context.Context, endpoint EndPoints) http.Handler {
 			options...,
 		))
 
-	router.Methods(common.GET).Path("/api/v1/fruits").
+	router.Methods(GET).Path("/api/v1/fruits").
 		Handler(httpTransport.NewServer(
 			endpoint.GetFruits,
 			decodeGetFruitsRequest,

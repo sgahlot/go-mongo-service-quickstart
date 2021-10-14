@@ -1,4 +1,4 @@
-package mongo
+package common
 
 import (
 	"context"
@@ -14,7 +14,7 @@ const (
 )
 
 func decodeFruitRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var fruitRequest FruitRequest
+	var fruitRequest Fruit
 	if err := json.NewDecoder(r.Body).Decode(&fruitRequest); err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func decodeInsertFruitRequest(ctx context.Context, r *http.Request) (interface{}
 }
 
 func decodeGetFruitsRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	request := FruitRequest{}
+	request := Fruit{}
 
 	keys := r.URL.Query()
 	id := keys.Get(KEY_ID)

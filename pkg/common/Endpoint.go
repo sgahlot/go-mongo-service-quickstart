@@ -1,4 +1,4 @@
-package mongo
+package common
 
 import (
 	"context"
@@ -22,7 +22,7 @@ func GetFruits(service Service) endpoint.Endpoint {
 
 func GetFruit(service Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		fruit := request.(FruitRequest)
+		fruit := request.(Fruit)
 
 		return service.GetFruit(&fruit), nil
 	}
@@ -32,9 +32,9 @@ func DeleteFruits(service Service) endpoint.Endpoint {
 	return createEndpointFunc(service.DeleteFruits)
 }
 
-func createEndpointFunc(serviceFunc func(req *FruitRequest) FruitResponse) endpoint.Endpoint {
+func createEndpointFunc(serviceFunc func(req *Fruit) FruitResponse) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		fruit := request.(FruitRequest)
+		fruit := request.(Fruit)
 
 		return serviceFunc(&fruit), nil
 	}

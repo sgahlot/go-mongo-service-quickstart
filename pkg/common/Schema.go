@@ -1,8 +1,7 @@
-package mongo
+package common
 
 import (
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Fruit struct {
@@ -10,8 +9,6 @@ type Fruit struct {
 	Description string `json:"description"`
 	Name        string `json:"name"`
 }
-
-type FruitRequest = Fruit
 
 func (fruit *Fruit) String() string {
 	return fmt.Sprintf("id=%s, name=%s, description=%s", fruit.Id, fruit.Name, fruit.Description)
@@ -24,18 +21,9 @@ type FruitResponse struct {
 	Err     *error      `json:"error,omitempty"`  // Do not display if empty
 }
 
-func (req *FruitRequest) GetDbSearchQuery() []bson.M {
-	var query []bson.M
-
-	if req.Id != "" {
-		query = append(query, bson.M{"_id": req.Id})
-	}
-	if req.Name != "" {
-		query = append(query, bson.M{"name": req.Name})
-	}
-	if req.Description != "" {
-		query = append(query, bson.M{"description": req.Description})
-	}
-
-	return query
+type Service interface {
+	InsertFruit(req *Fruit) FruitResponse
+	GetFruits(req *Fruit) FruitResponse
+	GetFruit(req *Fruit) Fruit
+	DeleteFruits(req *Fruit) FruitResponse
 }
